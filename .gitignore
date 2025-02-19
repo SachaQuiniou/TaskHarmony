@@ -1,0 +1,7 @@
+node_modules
+pnpm-debug.log*
+Thumbs.db
+dist
+build
+.vscode
+.env
