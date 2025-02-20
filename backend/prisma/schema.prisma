@@ -6,3 +6,82 @@ datasource db {
   provider = "postgresql"
   url      = env("DB_URL")
 }
+
+model User {
+  id            String      @id @default(uuid())
+  firstname     String
+  lastname      String
+  email         String      @unique
+  password      String
+  projects      UserProject[]
+  tasks         UserTask[]
+  comments      Comment[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  @@index([email])
+}
+
+model Project {
+  id            String      @id @default(uuid())
+  name          String
+  description   String
+  startDate     DateTime    
+  endDate       DateTime?
+  users         UserProject[]
+  tasks         Task[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Task {
+  id            String      @id @default(uuid())
+  projectId     String
+  project       Project     @relation(fields: [projectId], references: [id])
+  title         String
+  description   String?
+  statusId      String
+  status        Status      @relation(fields: [statusId], references: [id])
+  startDate     DateTime    @default(now())
+  endDate       DateTime?
+  users         UserTask[]
+  comments      Comment[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Status {
+  id            String      @id @default(uuid())
+  name          String      @unique
+  color         String?
+  tasks         Task[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Comment {
+  id            String      @id @default(uuid())
+  taskId        String
+  userId        String
+  content       String
+  contentDate   DateTime    @default(now())
+  editedAt      DateTime?
+  task          Task        @relation(fields: [taskId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+}
+
+model UserProject {
+  userId        String
+  projectId     String
+  role          String?
+  user          User        @relation(fields: [userId], references: [id])
+  project       Project     @relation(fields: [projectId], references: [id])
+  @@id([userId, projectId])
+}
+
+model UserTask {
+  userId        String
+  taskId        String
+  user          User        @relation(fields: [userId], references: [id])
+  task          Task        @relation(fields: [taskId], references: [id])
+  @@id([userId, taskId])
+}
